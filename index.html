@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>玩趣娛樂工作室 - 專業操作系統工具</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&family=Roboto&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+    background:
+      linear-gradient(135deg, #1e2a38, #273a51 60%, #1e2a38 90%);
+    color: #e6e6e6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* 背景疊加幾何圖形 */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255, 165, 0, 0.12) 0%, transparent 60%),
+      radial-gradient(circle at 80% 70%, rgba(255, 165, 0, 0.15) 0%, transparent 50%),
+      repeating-conic-gradient(from 45deg, rgba(255, 165, 0, 0.07) 0deg 10deg, transparent 10deg 20deg);
+    mix-blend-mode: screen;
+    z-index: 0;
+  }
+
+  header {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    text-align: center;
+    padding: 30px 20px 15px;
+    color: #f0a500;
+    text-shadow:
+      2px 2px 4px #c77600,
+      4px 4px 8px #7a4c00;
+    user-select: none;
+    letter-spacing: 4px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .lang-switcher {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    background: #273a51cc;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #f0a500;
+    user-select: none;
+    cursor: pointer;
+    box-shadow: 0 0 12px #f0a500bb;
+    z-index: 1001;
+    display: flex;
+    gap: 10px;
+  }
+  .lang-switcher button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+  }
+  .lang-switcher button.active,
+  .lang-switcher button:hover {
+    background-color: #f0a500;
+    color: #1e2a38;
+  }
+
+  .contact {
+    max-width: 1000px;
+    margin: 10px auto 30px;
+    padding: 15px 20px;
+    background: rgba(255, 165, 0, 0.12);
+    border-radius: 10px;
+    color: #f0a500;
+    font-weight: 600;
+    font-size: 1.2rem;
+    text-align: center;
+    user-select: text;
+    box-shadow: 0 0 12px rgba(255, 165, 0, 0.5);
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact span {
+    font-weight: 900;
+    color: #ffb347;
+  }
+
+  main {
+    flex-grow: 1;
+    max-width: 1200px;
+    margin: 0 auto 80px;
+    padding: 0 15px;
+    display: flex;
+    gap: 25px;
+    position: relative;
+    z-index: 1;
+  }
+
+  nav {
+    flex: 0 0 200px;
+    background: #273a51cc;
+    border-radius: 16px;
+    box-shadow: 0 0 12px #f0a500aa;
+    padding: 20px 0;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background-color 0.3s ease;
+  }
+
+  nav button,
+  nav details button {
+    background: none;
+    border: none;
+    color: #f0a500;
+    font-weight: 700;
+    font-size: 1.15rem;
+    padding: 16px 30px;
+    text-align: left;
+    cursor: pointer;
+    border-left: 6px solid transparent;
+    transition:
+      background-color 0.6s ease,
+      color 0.3s ease,
+      border-left-color 0.3s ease;
+    user-select: none;
+  }
+
+  nav button:hover:not(.active),
+  nav details button:hover:not(.active) {
+    background: linear-gradient(90deg, #f0a500dd, #ffcc33dd);
+    color: #1e2a38;
+    border-left-color: #ffdd76;
+    animation: glow 1.5s ease infinite alternate;
+  }
+
+  nav button.active,
+  nav details button.active {
+    background: #f0a500dd;
+    color: #1e2a38;
+    border-left-color: #ffdd76;
+    cursor: default;
+    font-weight: 900;
+  }
+
+  nav button:focus-visible,
+  nav details button:focus-visible {
+    outline: 3px solid #ffdd76;
+    outline-offset: 2px;
+  }
+
+  nav details {
+    margin-top: 10px;
+    color: #f0a500;
+    user-select: none;
+  }
+
+  nav summary {
+    font-weight: 900;
+    font-size: 1.2rem;
+    padding: 16px 30px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  nav details[open] summary::after {
+    content: "▲";
+    float: right;
+    margin-right: 12px;
+    font-size: 1rem;
+  }
+
+  nav details:not([open]) summary::after {
+    content: "▼";
+    float: right;
+    margin-right: 12px;
+    font-size: 1rem;
+  }
+
+  nav details button {
+    font-weight: 600;
+    font-size: 1rem;
+    padding-left: 45px;
+    border-left: 4px solid transparent;
+    margin-top: 6px;
+    user-select: none;
+  }
+
+  section.content {
+    flex-grow: 1.5;
+    background: #1e2a38cc;
+    border-radius: 16px;
+    padding: 40px 50px;
+    box-shadow: 0 0 30px #f0a500bb;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInUp 0.6s ease forwards;
+    overflow-y: auto;
+    user-select: text;
+    scroll-behavior: smooth;
+    position: relative;
+  }
+
+  section.content h2 {
+    color: #f0a500;
+    font-weight: 900;
+    font-size: 2.8rem;
+    margin-top: 0;
+    border-bottom: 4px solid #f0a500;
+    padding-bottom: 16px;
+    user-select: text;
+  }
+
+  section.content h3 {
+    color: #ffc766;
+    margin-top: 30px;
+    margin-bottom: 18px;
+    font-weight: 700;
+    font-size: 1.85rem;
+    user-select: text;
+  }
+
+  section.content p,
+  section.content ul li {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    user-select: text;
+  }
+
+  section.content ul {
+    padding-left: 1.5em;
+    margin-top: 0;
+  }
+
+  .price {
+    font-size: 1.9rem;
+    color: #ffcc33;
+    font-weight: 900;
+    margin-top: 40px;
+    user-select: text;
+  }
+
+  /* 圖片展示區 */
+  .image-gallery {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+  .image-gallery img {
+    width: calc(50% - 9px);
+    border-radius: 12px;
+    box-shadow: 0 0 12px #f0a500bb;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .image-gallery img:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 24px #ffdd76;
+  }
+
+  /* 點擊放大圖片遮罩 */
+  #img-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(30, 42, 56, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  #img-modal img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 14px;
+    box-shadow: 0 0 36px #f0a500cc;
+  }
+  #img-modal:focus {
+    outline: none;
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 10px #ffdd76;
+    }
+    100% {
+      box-shadow: 0 0 24px #ffd54f;
+    }
+  }
+
+  footer {
+    text-align: center;
+    padding: 16px 10px;
+    background: #222c3b;
+    color: #888;
+    font-size: 0.95rem;
+    user-select: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: inset 0 1px 0 #444;
+    z-index: 1000;
+  }
+
+  /* 手機版響應式 */
+  @media (max-width: 768px) {
+    main {
+      flex-direction: column;
+      margin-bottom: 100px;
+    }
+    nav {
+      flex: none;
+      width: 100%;
+      display: flex;
+      overflow-x: auto;
+      padding: 10px 0;
+      border-radius: 0;
+      box-shadow: none;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: #f0a500 transparent;
+    }
+    nav button,
+    nav details button {
+      flex: 0 0 auto;
+      font-size: 1rem;
+      padding: 10px 16px;
+      border-left: none;
+      border-radius: 12px;
+      background: #273a51cc;
+      box-shadow: 0 0 6px #f0a500aa;
+      text-align: center;
+    }
+    nav button.active,
+    nav details button.active {
+      background: #f0a500;
+      color: #1e2a38;
+      box-shadow: 0 0 14px #ffdd76;
+    }
+    nav details {
+      display: none;
+    }
+    section.content {
+      padding: 20px 20px 40px;
+      min-height: auto;
+      max-height: 70vh;
+      overflow-y: auto;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .image-gallery img {
+      width: 100%;
+      border-radius: 10px;
+    }
+  }
+
+</style>
+</head>
+<body>
+<header role="banner">玩趣娛樂工作室</header>
+
+<div class="lang-switcher" role="group" aria-label="語言切換">
+  <button id="btn-zh" aria-pressed="true" class="active" aria-label="切換到繁體中文">繁中</button>
+  <button id="btn-en" aria-pressed="false" aria-label="切換到英文">EN</button>
+</div>
+
+<div class="contact" aria-live="polite" aria-atomic="true">
+  聯絡我們：<span>LINE：@320zzaye</span>
+</div>
+
+<main>
+  <nav role="tablist" aria-label="產品列表">
+    <!-- 按鈕由 JS 動態產生 -->
+  </nav>
+
+  <section class="content" role="tabpanel" tabindex="0" aria-live="polite" aria-atomic="true" aria-label="產品詳細內容">
+    <!-- 產品內容由 JS 動態產生 -->
+  </section>
+</main>
+
+<!-- 圖片放大模態框 -->
+<div id="img-modal" tabindex="-1" aria-modal="true" role="dialog" aria-label="圖片放大檢視">
+  <img src="" alt="產品圖片放大檢視" />
+</div>
+
+<footer>
+  &copy; 2025 玩趣娛樂工作室 | All Rights Reserved.
+</footer>
+
+<script>
+  const products = {
+    zh: [
+      {
+        id: "yjs360",
+        title: "易捷S360操作系統",
+        intro: "易捷S360是一款整合多功能的企業級操作系統，具備高度客製化與安全性。",
+        details: "專為中大型企業設計，支持多點觸控與跨平台應用。",
+        features: [
+          "內建先進防毒防火牆",
+          "多用戶權限管理系統",
+          "雲端備份與同步功能",
+          "支援多種虛擬機環境"
+        ],
+        useCases: [
+          "企業資訊管理",
+          "多媒體內容製作",
+          "大數據分析與處理"
+        ],
+        price: "NT$ 45,000 起",
+        images: [
+          "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "lightnovel",
+        title: "輕小說系統",
+        intro: "專為輕小說愛好者打造的閱讀與管理平台，支持多語言與書籤功能。",
+        details: "擁有智能推薦演算法，讓你輕鬆找到喜歡的故事。",
+        features: [
+          "多語言書架管理",
+          "自訂閱讀主題",
+          "社群分享與評論系統",
+          "線上離線同步"
+        ],
+        useCases: [
+          "個人閱讀筆記",
+          "輕小說創作發表",
+          "讀者社群互動"
+        ],
+        price: "NT$ 6,800 起",
+        images: [
+          "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "dappmaker",
+        title: "DAppMaker去中心化應用建構平台",
+        intro: "DAppMaker提供簡易拖拉介面，讓開發者快速部署區塊鏈應用。",
+        details: "無需寫程式，輕鬆建立智能合約與用戶界面。",
+        features: [
+          "即時區塊鏈數據監控",
+          "多鏈支持",
+          "強大的API整合",
+          "豐富的模板庫"
+        ],
+        useCases: [
+          "區塊鏈遊戲開發",
+          "去中心化金融應用",
+          "分散式身份驗證"
+        ],
+        price: "NT$ 25,000 起",
+        images: [
+          "https://images.unsplash.com/photo-1551836022-7b43b8c3637f?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1526378723281-3660d58c3c16?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "topsoft",
+        title: "TopSoft 頂尖軟體開發套件",
+        intro: "提供完整開發環境與工具鏈，提升軟體開發效率與品質。",
+        details: "支援多種程式語言與持續整合流程。",
+        features: [
+          "代碼自動格式化",
+          "內建單元測試框架",
+          "多平台打包與部署",
+          "即時錯誤追蹤"
+        ],
+        useCases: [
+          "企業級軟體開發",
+          "跨平台應用製作",
+          "持續交付與部署"
+        ],
+        price: "NT$ 38,500 起",
+        images: [
+          "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "gamemaster",
+        title: "GameMaster 遊戲管理平台",
+        intro: "一站式遊戲伺服器與用戶管理系統，提升玩家體驗與管理效率。",
+        details: "支持多款熱門遊戲與實時數據分析。",
+        features: [
+          "伺服器健康監控",
+          "用戶行為分析",
+          "自動化活動管理",
+          "跨平台數據同步"
+        ],
+        useCases: [
+          "遊戲運營團隊",
+          "電競賽事管理",
+          "玩家社群經營"
+        ],
+        price: "NT$ 29,000 起",
+        images: [
+          "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "artflow",
+        title: "ArtFlow 創意繪圖工具",
+        intro: "專為設計師與藝術家打造的數位繪圖平台，支援多種筆刷與圖層管理。",
+        details: "結合AI輔助設計，提升創作效率與靈感發揮。",
+        features: [
+          "多種筆刷工具",
+          "圖層無限撤銷",
+          "AI智能配色",
+          "社群作品展示"
+        ],
+        useCases: [
+          "插畫創作",
+          "數位藝術教學",
+          "設計作品分享"
+        ],
+        price: "NT$ 15,500 起",
+        images: [
+          "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1497493292307-31c376b6e479?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "medistream",
+        title: "MediStream 醫療資料管理系統",
+        intro: "專業醫療資料儲存與分析平台，確保數據安全與合規。",
+        details: "支持跨院區數據共享與智能診斷輔助。",
+        features: [
+          "資料加密存取",
+          "跨院區資料同步",
+          "智能診斷輔助系統",
+          "合規報表產生"
+        ],
+        useCases: [
+          "醫療機構管理",
+          "臨床研究分析",
+          "健康數據追蹤"
+        ],
+        price: "NT$ 52,000 起",
+        images: [
+          "https://images.unsplash.com/photo-1588776814546-7790a3c2e477?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1581091012184-dfe3c8a0a67b?auto=format&fit=crop&w=600&q=80"
+        ]
+      }
+    ],
+
+    en: [
+      {
+        id: "yjs360",
+        title: "EasyJet S360 OS",
+        intro: "EasyJet S360 is an enterprise-grade integrated operating system with high customization and security.",
+        details: "Designed for medium and large enterprises, supporting multi-touch and cross-platform applications.",
+        features: [
+          "Built-in advanced antivirus and firewall",
+          "Multi-user permission management system",
+          "Cloud backup and sync",
+          "Supports multiple virtual machine environments"
+        ],
+        useCases: [
+          "Enterprise information management",
+          "Multimedia content creation",
+          "Big data analysis and processing"
+        ],
+        price: "Starting at US$1,500",
+        images: [
+          "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "lightnovel",
+        title: "LightNovel System",
+        intro: "A reading and management platform for light novel enthusiasts, supporting multiple languages and bookmarks.",
+        details: "Features intelligent recommendation algorithms to help you find stories you love.",
+        features: [
+          "Multi-language bookshelf management",
+          "Customizable reading themes",
+          "Community sharing and commenting system",
+          "Online and offline synchronization"
+        ],
+        useCases: [
+          "Personal reading notes",
+          "Light novel creation and publication",
+          "Reader community interaction"
+        ],
+        price: "Starting at US$220",
+        images: [
+          "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "dappmaker",
+        title: "DAppMaker Decentralized App Builder",
+        intro: "DAppMaker offers an easy drag-and-drop interface for developers to quickly deploy blockchain apps.",
+        details: "No coding required to easily create smart contracts and user interfaces.",
+        features: [
+          "Real-time blockchain data monitoring",
+          "Multi-chain support",
+          "Powerful API integration",
+          "Rich template library"
+        ],
+        useCases: [
+          "Blockchain game development",
+          "Decentralized finance applications",
+          "Decentralized identity authentication"
+        ],
+        price: "Starting at US$850",
+        images: [
+          "https://images.unsplash.com/photo-1551836022-7b43b8c3637f?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1526378723281-3660d58c3c16?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "topsoft",
+        title: "TopSoft Development Suite",
+        intro: "Provides a complete development environment and toolchain to improve software development efficiency and quality.",
+        details: "Supports multiple programming languages and continuous integration workflows.",
+        features: [
+          "Code auto-formatting",
+          "Built-in unit testing framework",
+          "Multi-platform packaging and deployment",
+          "Real-time error tracking"
+        ],
+        useCases: [
+          "Enterprise software development",
+          "Cross-platform app creation",
+          "Continuous delivery and deployment"
+        ],
+        price: "Starting at US$1,300",
+        images: [
+          "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "gamemaster",
+        title: "GameMaster Platform",
+        intro: "An all-in-one game server and user management system to enhance player experience and management efficiency.",
+        details: "Supports multiple popular games and real-time data analysis.",
+        features: [
+          "Server health monitoring",
+          "User behavior analytics",
+          "Automated event management",
+          "Cross-platform data synchronization"
+        ],
+        useCases: [
+          "Game operation teams",
+          "E-sports event management",
+          "Player community management"
+        ],
+        price: "Starting at US$980",
+        images: [
+          "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "artflow",
+        title: "ArtFlow Creative Drawing Tool",
+        intro: "A digital drawing platform for designers and artists, supporting multiple brushes and layer management.",
+        details: "Combines AI-assisted design to enhance creative efficiency and inspiration.",
+        features: [
+          "Multiple brush tools",
+          "Unlimited undo for layers",
+          "AI intelligent color matching",
+          "Community artwork showcase"
+        ],
+        useCases: [
+          "Illustration creation",
+          "Digital art education",
+          "Design portfolio sharing"
+        ],
+        price: "Starting at US$520",
+        images: [
+          "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1497493292307-31c376b6e479?auto=format&fit=crop&w=600&q=80"
+        ]
+      },
+      {
+        id: "medistream",
+        title: "MediStream Medical Data Management",
+        intro: "A professional medical data storage and analysis platform ensuring data security and compliance.",
+        details: "Supports cross-hospital data sharing and intelligent diagnosis assistance.",
+        features: [
+          "Data encryption access",
+          "Cross-hospital data synchronization",
+          "Intelligent diagnostic assistance system",
+          "Compliance report generation"
+        ],
+        useCases: [
+          "Medical institution management",
+          "Clinical research analysis",
+          "Health data tracking"
+        ],
+        price: "Starting at US$1,750",
+        images: [
+          "https://images.unsplash.com/photo-1588776814546-7790a3c2e477?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1581091012184-dfe3c8a0a67b?auto=format&fit=crop&w=600&q=80"
+        ]
+      }
+    ]
+  };
+
+  let currentLang = "zh";
+  let currentProductIndex = 0;
+
+  const nav = document.querySelector("nav");
+  const contentSection = document.querySelector("section.content");
+  const btnZh = document.getElementById("btn-zh");
+  const btnEn = document.getElementById("btn-en");
+  const imgModal = document.getElementById("img-modal");
+  const modalImg = imgModal.querySelector("img");
+
+  function createNavButtons() {
+    nav.innerHTML = "";
+    products[currentLang].forEach((prod, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = prod.title;
+      btn.setAttribute("role", "tab");
+      btn.id = `tab-${prod.id}`;
+      btn.setAttribute("aria-selected", i === currentProductIndex ? "true" : "false");
+      btn.setAttribute("aria-controls", `panel-${prod.id}`);
+      btn.classList.toggle("active", i === currentProductIndex);
+      btn.addEventListener("click", () => {
+        if (currentProductIndex !== i) {
+          currentProductIndex = i;
+          updateContent();
+          updateNavButtons();
+        }
+      });
+      nav.appendChild(btn);
+    });
+  }
+
+  function updateNavButtons() {
+    const buttons = nav.querySelectorAll("button[role=tab]");
+    buttons.forEach((btn, i) => {
+      btn.classList.toggle("active", i === currentProductIndex);
+      btn.setAttribute("aria-selected", i === currentProductIndex ? "true" : "false");
+    });
+  }
+
+  function updateContent() {
+    const prod = products[currentLang][currentProductIndex];
+    contentSection.innerHTML = `
+      <h2 id="panel-${prod.id}" tabindex="-1">${prod.title}</h2>
+      <p><strong>${currentLang === "zh" ? "簡介：" : "Introduction:"}</strong> ${prod.intro}</p>
+      <p><strong>${currentLang === "zh" ? "詳細說明：" : "Details:"}</strong> ${prod.details}</p>
+      <h3>${currentLang === "zh" ? "功能特色" : "Features"}</h3>
+      <ul>${prod.features.map(f => `<li>${f}</li>`).join("")}</ul>
+      <h3>${currentLang === "zh" ? "使用範例" : "Use Cases"}</h3>
+      <ul>${prod.useCases.map(u => `<li>${u}</li>`).join("")}</ul>
+      <p><strong>${currentLang === "zh" ? "價格：" : "Price:"}</strong> ${prod.price}</p>
+      <div class="image-gallery" aria-label="${currentLang === 'zh' ? '產品圖片' : 'Product images'}">
+        ${prod.images.map((img, idx) => `<img src="${img}" alt="${prod.title} 圖片${idx + 1}" tabindex="0" />`).join("")}
+      </div>
+    `;
+
+    // Add click and keyboard event to images for modal
+    const imgs = contentSection.querySelectorAll(".image-gallery img");
+    imgs.forEach(img => {
+      img.addEventListener("click", () => openModal(img.src, img.alt));
+      img.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openModal(img.src, img.alt);
+        }
+      });
+    });
+  }
+
+  function openModal(src, alt) {
+    modalImg.src = src;
+    modalImg.alt = alt;
+    imgModal.style.display = "flex";
+    imgModal.focus();
+  }
+
+  function closeModal() {
+    imgModal.style.display = "none";
+    modalImg.src = "";
+    modalImg.alt = "";
+  }
+
+  imgModal.addEventListener("click", closeModal);
+  imgModal.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+  });
+
+  btnZh.addEventListener("click", () => {
+    if (currentLang !== "zh") {
+      currentLang = "zh";
+      btnZh.classList.add("active");
+      btnZh.setAttribute("aria-pressed", "true");
+      btnEn.classList.remove("active");
+      btnEn.setAttribute("aria-pressed", "false");
+      currentProductIndex = 0;
+      createNavButtons();
+      updateContent();
+    }
+  });
+
+  btnEn.addEventListener("click", () => {
+    if (currentLang !== "en") {
+      currentLang = "en";
+      btnEn.classList.add("active");
+      btnEn.setAttribute("aria-pressed", "true");
+      btnZh.classList.remove("active");
+      btnZh.setAttribute("aria-pressed", "false");
+      currentProductIndex = 0;
+      createNavButtons();
+      updateContent();
+    }
+  });
+
+  // 初始化頁面
+  createNavButtons();
+  updateContent();
+</script>
+
+</body>
+</html>
